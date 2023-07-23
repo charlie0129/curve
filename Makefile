@@ -50,6 +50,14 @@ Usage:
     make image stor=bs/fs tag=TAG os=OS
 Examples:
     make image stor=bs tag=opencurvedocker/curvebs:v1.2 os=debian9
+
+
+## package
+Usage:
+    make <tar|deb> release=0/1 dep=0/1
+Examples:
+    make deb
+    make tar release=1 dep=0
 endef
 export help_msg
 
@@ -70,6 +78,9 @@ install:
 
 image:
 	@bash util/image.sh $(stor) $(tag) $(os)
+
+tar deb:
+	@RELEASE=$(release) DEP=$(dep) bash util/package.sh $@
 
 playground:
 	@bash util/playground.sh

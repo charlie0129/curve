@@ -4,7 +4,7 @@ RUN git clone ${GITHUB_PROXY}https://github.com/opencurve/curve \
     && cd /curve \
     && bash replace-curve-repo.sh \
     && make dep stor=fs \
-    && bash mk-tar.sh \
+    && make tar \
     && mv curve_*.tar.gz curve_sdk.tar.gz
 
 FROM opencurvedocker/curve-base:build-debian9 AS curve-tgt
