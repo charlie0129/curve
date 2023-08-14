@@ -79,6 +79,8 @@ A tool for CurveFS & CurveBs.
       - [create dir](#create-dir)
     - [check](#check-1)
       - [check copyset](#check-copyset-1)
+      - [check chunkserver](#check-chunkserver)
+      - [check server](#check-server)
     - [snapshot](#snapshot)
       - [snapshot copyset](#snapshot-copyset)
   - [Comparison of old and new commands](#comparison-of-old-and-new-commands)
@@ -902,7 +904,7 @@ Output:
 list dir information in curvebs
 
 ```bash
-curve bs list dir --dir /
+curve bs list dir --path /
 ```
 
 Output:
@@ -1607,7 +1609,7 @@ create pagefile
 
 Usage:
 ```bash
-curve bs create file --path /test2/test4  --size 10GiB
+curve bs create file --path /test2/test4  --size 10
 ```
 
 Output:
@@ -1657,6 +1659,46 @@ Output:
 +------------+-----------+--------+--------+--------+---------+
 | 4294967297 | 1         | 1      | ok     | 0      |         |
 +------------+-----------+--------+--------+--------+---------+
+```
+#### check chunkserver
+
+check chunkserver health in curvebs
+
+Usage:
+
+```shell
+curve bs check chunkserver --chunkserverid 1
+```
+
+Output:
+
+```shell
++------------+-----------+--------+--------+--------+---------+
+| CHUNKSERVERID | HELATHYCOUNT | UNHEALTHYCOUNT | UNHEALTHYRATIO |
++------------+-----------+--------+--------+--------+---------+
+| 1             | 100          | 0              | 0.00%          |   
++------------+-----------+--------+--------+--------+---------+
+```
+
+####  check server
+
+check copysets health in server
+
+Usage:
+
+```shell
+curve bs check server --serverid 1
+curve bs check server --ip 127.0.0.1 --port 8200
+```
+
+Output:
+
+```shell
++--------+-----------+-------+------------------+
+| SERVER |    IP     | TOTAL | UNHEALTHYCOPYSET |
++--------+-----------+-------+------------------+
+| 1      | 127.0.0.1 | 100   | 0(0%)            |
++--------+-----------+-------+------------------+
 ```
 
 ### snapshot
@@ -1759,8 +1801,8 @@ Output:
 | curve_ops_tool list-may-broken-vol   | curve bs list may-broken-vol      |
 | curve_ops_tool rapid-leader-schedule | curve bs update leader-schedule   |
 | curve_ops_tool do-snapshot-all       | curve bs snapshot --all           |
+| curve_ops_tool check-chunkserver     | curbe bs check chunkserver        |
 | curve_ops_tool status                |                                   |
 | curve_ops_tool check-consistency     |                                   |
-| curve_ops_tool check-chunkserver     |                                   |
-| curve_ops_tool check-server          |                                   |
+| curve_ops_tool check-server          | curve bs check server             |
 
