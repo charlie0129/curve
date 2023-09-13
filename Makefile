@@ -58,7 +58,7 @@ Usage:
     make <tar|deb> release=0/1 dep=0/1
 Examples:
     make deb
-    make tar release=1 dep=0
+    make tar release=1 dep=1
 endef
 export help_msg
 

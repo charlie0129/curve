@@ -134,11 +134,11 @@ for _ in {1..2}; do
             -e RELEASE=${RELEASE:-0} \
             -e DEP=${DEP:-0} \
             opencurvedocker/curve-base:build-debian11 \
-            bazel build curvefs_python:curvefs --config=gcc7-later --copt -DHAVE_ZLIB=1 --compilation_mode=dbg -s \
+            bazel build curvefs_python:curvefs --config=gcc7-later --copt -DHAVE_ZLIB=1 --copt -O2 -s \
             --define=with_glog=true --define=libunwind=true --copt -DGFLAGS_NS=google \
             --copt \
             -Wno-error=format-security --copt -DUSE_BTHREAD_MUTEX --linkopt \
-            -L${dir}/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
+            -L/curve/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
             --linkopt -L/usr/local/lib ${bazelflags}
     else
         sudo docker run \
@@ -154,11 +154,11 @@ for _ in {1..2}; do
             -e RELEASE=${RELEASE:-0} \
             -e DEP=${DEP:-0} \
             opencurvedocker/curve-base:build-debian11 \
-            bazel build curvefs_python:curvefs --config=gcc7-later --copt -DHAVE_ZLIB=1 --copt -O2 -s \
+            bazel build curvefs_python:curvefs --config=gcc7-later --copt -DHAVE_ZLIB=1 --compilation_mode=dbg -s \
             --define=with_glog=true --define=libunwind=true --copt -DGFLAGS_NS=google \
             --copt \
             -Wno-error=format-security --copt -DUSE_BTHREAD_MUTEX --linkopt \
-            -L${dir}/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
+            -L/curve/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
             --linkopt -L/usr/local/lib ${bazelflags}
     fi
 
