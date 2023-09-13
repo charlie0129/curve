@@ -98,7 +98,7 @@ rm -rf "${cleandir[@]}"
 
 echo "start compiling"
 
-make build stor=bs release=${RELEASE:-0} dep=${DEP:-0} only="src/*,tools/*,curvefs/*"
+make build stor=bs release=${RELEASE:-0} dep=${DEP:-0}
 
 mkdir -p $outdir
 for i in $(readlink -f bazel-bin)/*; do
