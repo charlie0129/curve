@@ -75,43 +75,6 @@ if [ "${CREATE_PY_WHEEL}" == "1" ]; then
     exit 0
 fi
 
-function build_curvefs_python() {
-    for bin in "/usr/bin/python3"; do
-        if [ ! -f ${bin} ]; then
-            echo "${bin} not exist"
-            continue
-        fi
-
-        # if ! bash ./curvefs_python/configure.sh $(basename ${bin}); then
-        #     echo "configure for ${bin} failed"
-        #     continue
-        # fi
-
-        # backup and recover python depends shared libraries
-        mkdir -p ./build/py_deps_libs
-        cp ./curvefs_python/tmplib/* ./build/py_deps_libs/
-        cp ./build/py_deps_libs/* ./curvefs_python/tmplib/
-
-        # rm -rf ./bazel-bin/curvefs_python
-
-        # if [ "${RELEASE:-}" == "1" ]; then
-        #     bazel build curvefs_python:curvefs --copt -DHAVE_ZLIB=1 --copt -O2 -s \
-        #         --define=with_glog=true --define=libunwind=true --copt -DGFLAGS_NS=google \
-        #         --copt -Wno-error=format-security --copt -DUSE_BTHREAD_MUTEX --linkopt \
-        #         -L${dir}/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
-        #         ${bazelflags}
-        # else
-        #     bazel build curvefs_python:curvefs --copt -DHAVE_ZLIB=1 --compilation_mode=dbg -s \
-        #         --define=with_glog=true --define=libunwind=true --copt -DGFLAGS_NS=google \
-        #         --copt -Wno-error=format-security --copt -DUSE_BTHREAD_MUTEX --linkopt \
-        #         -L${dir}/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
-        #         ${bazelflags}
-        # fi
-
-        create_python_wheel ${bin}
-    done
-}
-
 if [[ "$1" != "tar" && "$1" != "deb" ]]; then
     echo "Usage: $0 <tar|deb>" 1>&2
     exit 1
@@ -157,74 +120,52 @@ for _ in {1..2}; do
         opencurvedocker/curve-base:build-debian11 \
         bash ./curvefs_python/configure.sh python3 # python2 is not built against anymore
 
-    sudo docker run \
-        -it --rm \
-        -w /curve \
-        --user $(id -u ${USER}):$(id -g ${USER}) \
-        -v $(pwd):/curve \
-        -v ${HOME}:${HOME} \
-        -v /etc/passwd:/etc/passwd:ro \
-        -v /etc/group:/etc/group:ro \
-        -v /etc/shadow:/etc/shadow:ro \
-        --privileged \
-        -e RELEASE=${RELEASE:-0} \
-        -e DEP=${DEP:-0} \
-        opencurvedocker/curve-base:build-debian11 \
-        bazel build curvefs_python:curvefs --config=gcc7-later --copt -DHAVE_ZLIB=1 --copt -O2 -s \
-        --define=with_glog=true --define=libunwind=true --copt -DGFLAGS_NS=google \
-        --copt \
-        -Wno-error=format-security --copt -DUSE_BTHREAD_MUTEX --linkopt \
-        -L${dir}/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
-        --linkopt -L/usr/local/lib ${bazelflags}
+    if [ "${RELEASE:-}" == "1" ]; then
+        sudo docker run \
+            -it --rm \
+            -w /curve \
+            --user $(id -u ${USER}):$(id -g ${USER}) \
+            -v $(pwd):/curve \
+            -v ${HOME}:${HOME} \
+            -v /etc/passwd:/etc/passwd:ro \
+            -v /etc/group:/etc/group:ro \
+            -v /etc/shadow:/etc/shadow:ro \
+            --privileged \
+            -e RELEASE=${RELEASE:-0} \
+            -e DEP=${DEP:-0} \
+            opencurvedocker/curve-base:build-debian11 \
+            bazel build curvefs_python:curvefs --config=gcc7-later --copt -DHAVE_ZLIB=1 --compilation_mode=dbg -s \
+            --define=with_glog=true --define=libunwind=true --copt -DGFLAGS_NS=google \
+            --copt \
+            -Wno-error=format-security --copt -DUSE_BTHREAD_MUTEX --linkopt \
+            -L${dir}/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
+            --linkopt -L/usr/local/lib ${bazelflags}
+    else
+        sudo docker run \
+            -it --rm \
+            -w /curve \
+            --user $(id -u ${USER}):$(id -g ${USER}) \
+            -v $(pwd):/curve \
+            -v ${HOME}:${HOME} \
+            -v /etc/passwd:/etc/passwd:ro \
+            -v /etc/group:/etc/group:ro \
+            -v /etc/shadow:/etc/shadow:ro \
+            --privileged \
+            -e RELEASE=${RELEASE:-0} \
+            -e DEP=${DEP:-0} \
+            opencurvedocker/curve-base:build-debian11 \
+            bazel build curvefs_python:curvefs --config=gcc7-later --copt -DHAVE_ZLIB=1 --copt -O2 -s \
+            --define=with_glog=true --define=libunwind=true --copt -DGFLAGS_NS=google \
+            --copt \
+            -Wno-error=format-security --copt -DUSE_BTHREAD_MUTEX --linkopt \
+            -L${dir}/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
+            --linkopt -L/usr/local/lib ${bazelflags}
+    fi
 
     for i in $(readlink -f bazel-bin)/curvefs*; do
         cp -rf $i bazel-bin-merged
     done
 done
-
-# sudo docker run \
-#     -it --rm \
-#     -w /curve \
-#     --user $(id -u ${USER}):$(id -g ${USER}) \
-#     -v $(pwd):/curve \
-#     -v ${HOME}:${HOME} \
-#     -v /etc/passwd:/etc/passwd:ro \
-#     -v /etc/group:/etc/group:ro \
-#     -v /etc/shadow:/etc/shadow:ro \
-#     --privileged \
-#     -e RELEASE=${RELEASE:-0} \
-#     -e DEP=${DEP:-0} \
-#     opencurvedocker/curve-base:build-debian11 \
-#     bazel build curvefs_python:curvefs --copt -DUSE_BTHREAD_MUTEX --copt -DHAVE_ZLIB=1 --copt -DGFLAGS_NS=google --compilation_mode=dbg -s --define=with_glog=true --define=libunwind=true --config=gcc7-later --linkopt -L/curve/curvefs_python/tmplib
-# BUILD_OPTS="--linkopt -L/curve/curvefs_python/tmplib" make build stor=bs release=${RELEASE:-0} dep=${DEP:-0} only="src/*,tools/*,curvefs_python/*"
-# bash util/build_in_image.sh --stor=bs --only="src/*,tools/*,curvefs_python/*" --dep=${DEP:-0} --release=${RELEASE:-0} --os=debian11
-# bash util/build_in_image.sh --stor=fs --only="src/*" --dep=${DEP:-0} --release=${RELEASE:-0} --os=debian11
-# exit 0
-
-# make build stor=bs release=${RELEASE:-0} dep=${DEP:-0} only="curvefs_python/*"
-# fail_count=0
-# for python in "python2" "python3"; do
-#     if ! bash ./curvefs_python/configure.sh ${python}; then
-#         echo "configure ${python} failed"
-#         let fail_count++
-#     fi
-# done
-
-# if [ "${RELEASE:-}" == "1" ]; then
-#     bazel build curvefs_python:curvefs --copt -DHAVE_ZLIB=1 --compilation_mode=dbg -s \
-#         --define=with_glog=true --define=libunwind=true --copt -DGFLAGS_NS=google \
-#         --copt \
-#         -Wno-error=format-security --copt -DUSE_BTHREAD_MUTEX --linkopt \
-#         -L${dir}/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
-#         --linkopt -L/usr/local/lib ${bazelflags}
-# else
-#     bazel build curvefs_python:curvefs --copt -DHAVE_ZLIB=1 --copt -O2 -s \
-#         --define=with_glog=true --define=libunwind=true --copt -DGFLAGS_NS=google \
-#         --copt \
-#         -Wno-error=format-security --copt -DUSE_BTHREAD_MUTEX --linkopt \
-#         -L${dir}/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
-#         --linkopt -L/usr/local/lib ${bazelflags}
-# fi
 
 echo "end compilation"
 
