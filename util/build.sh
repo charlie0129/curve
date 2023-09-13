@@ -83,7 +83,19 @@ get_options() {
 main() {
     get_options "$@"
 
-    sudo docker run --rm -w /curve --user $(id -u ${USER}):$(id -g ${USER}) -v $(pwd):/curve -v ${HOME}:${HOME} -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v /etc/shadow:/etc/shadow:ro --privileged opencurvedocker/curve-base:build-$g_os bash util/build_in_image.sh "$@"
+    sudo docker run \
+        --rm \
+        -w /curve \
+        --user $(id -u ${USER}):$(id -g ${USER}) \
+        -v $(pwd):/curve \
+        -v ${HOME}:${HOME} \
+        -v /etc/passwd:/etc/passwd:ro \
+        -v /etc/group:/etc/group:ro \
+        -v /etc/shadow:/etc/shadow:ro \
+        -e BUILD_OPTS="${BUILD_OPTS}" \
+        --privileged \
+        opencurvedocker/curve-base:build-$g_os \
+        bash util/build_in_image.sh "$@"
 }
 
 ############################  MAIN()

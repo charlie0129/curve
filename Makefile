@@ -21,13 +21,14 @@ Examples:
 
 ## build
 Usage:
-    make build stor=bs/fs only=TARGET dep=0/1 release=0/1 os=OS
+    make build stor=bs/fs only=TARGET1,...,TARGETx dep=0/1 release=0/1 os=OS
 Examples:
     make build stor=bs only=//src/chunkserver:chunkserver
-    make build stor=bs only=src/* dep=0
+    make build stor=bs only=src/*,test/* dep=0
     make build stor=fs only=test/* os=debian9
     make build stor=fs release=1
-
+Note:
+    Extra build options can be specified using BUILD_OPTS environment variable, which will be passed to bazel build command.
 
 ## dep
 Usage:
