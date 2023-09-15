@@ -80,6 +80,8 @@ if [[ "$1" != "tar" && "$1" != "deb" ]]; then
     exit 1
 fi
 
+source "$(dirname "${BASH_SOURCE}")/docker_opts.sh"
+
 outdir="bazel-bin-merged"
 
 cleandir=(
@@ -109,13 +111,8 @@ for _ in {1..2}; do
     sudo docker run \
         -it --rm \
         -w /curve \
-        --user $(id -u ${USER}):$(id -g ${USER}) \
         -v $(pwd):/curve \
-        -v ${HOME}:${HOME} \
-        -v /etc/passwd:/etc/passwd:ro \
-        -v /etc/group:/etc/group:ro \
-        -v /etc/shadow:/etc/shadow:ro \
-        --privileged \
+        ${g_docker_opts[@]} \
         -e BAZEL_BIN=${outdir} \
         opencurvedocker/curve-base:build-debian11 \
         bash ./curvefs_python/configure.sh python3 # python2 is not built against anymore
@@ -124,13 +121,8 @@ for _ in {1..2}; do
         sudo docker run \
             -it --rm \
             -w /curve \
-            --user $(id -u ${USER}):$(id -g ${USER}) \
             -v $(pwd):/curve \
-            -v ${HOME}:${HOME} \
-            -v /etc/passwd:/etc/passwd:ro \
-            -v /etc/group:/etc/group:ro \
-            -v /etc/shadow:/etc/shadow:ro \
-            --privileged \
+            ${g_docker_opts[@]} \
             -e RELEASE=${RELEASE:-0} \
             -e DEP=${DEP:-0} \
             opencurvedocker/curve-base:build-debian11 \
@@ -144,13 +136,8 @@ for _ in {1..2}; do
         sudo docker run \
             -it --rm \
             -w /curve \
-            --user $(id -u ${USER}):$(id -g ${USER}) \
             -v $(pwd):/curve \
-            -v ${HOME}:${HOME} \
-            -v /etc/passwd:/etc/passwd:ro \
-            -v /etc/group:/etc/group:ro \
-            -v /etc/shadow:/etc/shadow:ro \
-            --privileged \
+            ${g_docker_opts[@]} \
             -e RELEASE=${RELEASE:-0} \
             -e DEP=${DEP:-0} \
             opencurvedocker/curve-base:build-debian11 \
@@ -409,13 +396,8 @@ cp -rf ./build/py_deps_libs/* ./curvefs_python/tmplib/
 sudo docker run \
     -it --rm \
     -w /curve \
-    --user $(id -u ${USER}):$(id -g ${USER}) \
     -v $(pwd):/curve \
-    -v ${HOME}:${HOME} \
-    -v /etc/passwd:/etc/passwd:ro \
-    -v /etc/group:/etc/group:ro \
-    -v /etc/shadow:/etc/shadow:ro \
-    --privileged \
+    ${g_docker_opts[@]} \
     -e RELEASE=${RELEASE:-0} \
     -e DEP=${DEP:-0} \
     -e CREATE_PY_WHEEL=1 \
