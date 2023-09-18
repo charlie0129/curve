@@ -84,7 +84,7 @@ get_options() {
 main() {
     get_options "$@"
 
-    sudo docker run \
+    docker run \
         --rm \
         -w /curve \
         -v $(pwd):/curve \

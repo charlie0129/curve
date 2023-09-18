@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#  Copyright (c) 2020 NetEase Inc.
+#  Copyright (c) 2023 NetEase Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -108,24 +108,24 @@ for i in $(readlink -f bazel-bin)/*; do
 done
 
 for _ in {1..2}; do
-    sudo docker run \
+    docker run \
         -it --rm \
         -w /curve \
         -v $(pwd):/curve \
         ${g_docker_opts[@]} \
         -e BAZEL_BIN=${outdir} \
-        opencurvedocker/curve-base:build-debian11 \
+        opencurvedocker/curve-base:build-${OS:-debian11} \
         bash ./curvefs_python/configure.sh python3 # python2 is not built against anymore
 
     if [ "${RELEASE:-}" == "1" ]; then
-        sudo docker run \
+        docker run \
             -it --rm \
             -w /curve \
             -v $(pwd):/curve \
             ${g_docker_opts[@]} \
             -e RELEASE=${RELEASE:-0} \
             -e DEP=${DEP:-0} \
-            opencurvedocker/curve-base:build-debian11 \
+            opencurvedocker/curve-base:build-${OS:-debian11} \
             bazel build curvefs_python:curvefs --config=gcc7-later --copt -DHAVE_ZLIB=1 --copt -O2 -s \
             --define=with_glog=true --define=libunwind=true --copt -DGFLAGS_NS=google \
             --copt \
@@ -133,14 +133,14 @@ for _ in {1..2}; do
             -L/curve/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
             --linkopt -L/usr/local/lib ${bazelflags}
     else
-        sudo docker run \
+        docker run \
             -it --rm \
             -w /curve \
             -v $(pwd):/curve \
             ${g_docker_opts[@]} \
             -e RELEASE=${RELEASE:-0} \
             -e DEP=${DEP:-0} \
-            opencurvedocker/curve-base:build-debian11 \
+            opencurvedocker/curve-base:build-${OS:-debian11} \
             bazel build curvefs_python:curvefs --config=gcc7-later --copt -DHAVE_ZLIB=1 --compilation_mode=dbg -s \
             --define=with_glog=true --define=libunwind=true --copt -DGFLAGS_NS=google \
             --copt \
@@ -393,7 +393,7 @@ fi
 mkdir -p ./build/py_deps_libs
 cp -rf ./curvefs_python/tmplib/* ./build/py_deps_libs/
 cp -rf ./build/py_deps_libs/* ./curvefs_python/tmplib/
-sudo docker run \
+docker run \
     -it --rm \
     -w /curve \
     -v $(pwd):/curve \
@@ -401,5 +401,5 @@ sudo docker run \
     -e RELEASE=${RELEASE:-0} \
     -e DEP=${DEP:-0} \
     -e CREATE_PY_WHEEL=1 \
-    opencurvedocker/curve-base:build-debian11 \
+    opencurvedocker/curve-base:build-${OS:-debian11} \
     $0

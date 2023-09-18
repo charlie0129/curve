@@ -55,10 +55,10 @@ Examples:
 
 ## package
 Usage:
-    make <tar|deb> release=0/1 dep=0/1
+    make <tar|deb> release=0/1 dep=0/1 os=OS
 Examples:
     make deb
-    make tar release=1 dep=1
+    make tar release=1 dep=1 os=debian11
 endef
 export help_msg
 
@@ -87,7 +87,7 @@ image:
 	@bash util/image.sh $(stor) $(tag) $(os)
 
 tar deb:
-	@RELEASE=$(release) DEP=$(dep) bash util/package.sh $@
+	@RELEASE=$(release) DEP=$(dep) OS=$(os) bash util/package.sh $@
 
 playground:
 	@bash util/playground.sh
