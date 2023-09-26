@@ -21,6 +21,10 @@ set -x
 dir=$(pwd)
 echo "Working directory: ${dir}"
 
+if ! grep -iq debian /etc/os-release; then
+    echo "only support Debian os supported"
+fi
+
 tag_version=$(git status | grep -Ew "HEAD detached at|On branch" | awk '{print $NF}' | awk -F"v" '{print $2}')
 if [ -z ${tag_version} ]; then
     echo "not found version info, set version to 9.9.9"
@@ -131,7 +135,7 @@ for _ in {1..2}; do
             --copt \
             -Wno-error=format-security --copt -DUSE_BTHREAD_MUTEX --linkopt \
             -L/curve/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
-            --linkopt -L/usr/local/lib ${bazelflags}
+            --linkopt -L/usr/local/lib --copt -w --cxxopt -faligned-new
     else
         docker run \
             -it --rm \
@@ -146,7 +150,7 @@ for _ in {1..2}; do
             --copt \
             -Wno-error=format-security --copt -DUSE_BTHREAD_MUTEX --linkopt \
             -L/curve/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
-            --linkopt -L/usr/local/lib ${bazelflags}
+            --linkopt -L/usr/local/lib --copt -w --cxxopt -faligned-new
     fi
 
     for i in $(readlink -f bazel-bin)/curvefs*; do
@@ -249,7 +253,8 @@ function build_deb() {
     cp $outdir/nbd/src/curve-nbd build/k8s-nbd-package/usr/bin
 
     # step5 记录到debian包的配置文件，打包debian包
-    version="Version: ${curve_version}"
+    debian_version=$(grep VERSION_ID /etc/os-release | cut -d '=' -f 2 | tr -d '"')
+    version="Version: ${curve_version}+deb${debian_version}"
     echo ${version} >>build/curve-mds/DEBIAN/control
     echo ${version} >>build/curve-sdk/DEBIAN/control
     echo ${version} >>build/curve-chunkserver/DEBIAN/control
