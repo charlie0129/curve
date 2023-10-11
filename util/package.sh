@@ -112,7 +112,7 @@ for i in $(readlink -f bazel-bin)/*; do
 done
 
 for _ in {1..2}; do
-    docker run \
+    sudo docker run \
         -it --rm \
         -w /curve \
         -v $(pwd):/curve \
@@ -122,7 +122,7 @@ for _ in {1..2}; do
         bash ./curvefs_python/configure.sh python3 # python2 is not built against anymore
 
     if [ "${RELEASE:-}" == "1" ]; then
-        docker run \
+        sudo docker run \
             -it --rm \
             -w /curve \
             -v $(pwd):/curve \
@@ -137,7 +137,7 @@ for _ in {1..2}; do
             -L/curve/curvefs_python/tmplib/ --copt -DCURVEVERSION=${curve_version} \
             --linkopt -L/usr/local/lib --copt -w --cxxopt -faligned-new
     else
-        docker run \
+        sudo docker run \
             -it --rm \
             -w /curve \
             -v $(pwd):/curve \
@@ -398,7 +398,7 @@ fi
 mkdir -p ./build/py_deps_libs
 cp -rf ./curvefs_python/tmplib/* ./build/py_deps_libs/
 cp -rf ./build/py_deps_libs/* ./curvefs_python/tmplib/
-docker run \
+sudo docker run \
     -it --rm \
     -w /curve \
     -v $(pwd):/curve \
